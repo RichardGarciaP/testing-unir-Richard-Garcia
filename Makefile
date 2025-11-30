@@ -41,7 +41,7 @@ test-e2e:
 	docker stop calc-web || true
 	docker rm --force calc-web || true
 	docker run -d --rm --volume $(PROJECTPATH):/opt/calc --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
-	docker run -d --rm --volume $(PROJECTPATH)/web:/usr/share/nginx/html --volume $(PROJECTPATH)/web/constants.test.js:/usr/share/nginx/html/constants.js --volume $(PROJECTPATH)/web/nginx.conf:/etc/nginx/conf.d/default.conf --network calc-test-e2e --name calc-web -p 80:80 nginx
+	docker run -d --rm --volume $(PROJECTPATH)/web:/usr/share/nginx/html --volume $(PROJECTPATH)/web/constants.test.js:/usr/share/nginx/html/constants.js --volume $(PROJECTPATH)/web/nginx.conf:/etc/nginx/conf.d/default.conf --network calc-test-e2e --name calc-web -p 81:80 nginx
 	docker run --rm --volume $(PROJECTPATH)/test/e2e/cypress.json:/cypress.json --volume $(PROJECTPATH)/test/e2e/cypress:/cypress --volume $(PROJECTPATH)/results:/results  --network calc-test-e2e cypress/included:4.9.0 --browser chrome || true
 	docker rm --force apiserver
 	docker rm --force calc-web
