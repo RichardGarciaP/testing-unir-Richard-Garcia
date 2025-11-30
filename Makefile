@@ -32,6 +32,9 @@ test-api:
 	docker network rm calc-test-api
 
 test-e2e:
+	@echo "Cleaning up any existing containers and networks..."
+	docker ps -a | grep -E "(apiserver|calc-web)" | awk '{print $$1}' | xargs docker rm -f 2>/dev/null || true
+	docker network rm calc-test-api calc-test-e2e calc-test-zap 2>/dev/null || true
 	docker network create calc-test-e2e || true
 	docker stop apiserver || true
 	docker rm --force apiserver || true
