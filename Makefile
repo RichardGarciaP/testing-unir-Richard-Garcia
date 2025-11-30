@@ -23,6 +23,9 @@ test-behavior:
 	docker run --rm --volume $(PROJECTPATH):/opt/calc --env PYTHONPATH=/opt/calc -w /opt/calc calculator-app:latest bash test/behavior/junit-reports.sh
 	
 test-api:
+	@echo "Cleaning up any existing containers and networks..."
+	docker ps -a | grep -E "(apiserver)" | awk '{print $$1}' | xargs docker rm -f 2>/dev/null || true
+	docker network rm calc-test-api 2>/dev/null || true
 	docker network create calc-test-api || true
 	docker run -d --rm --volume $(PROJECTPATH):/opt/calc --network calc-test-api --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 3000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	docker run --rm --volume $(PROJECTPATH):/opt/calc --network calc-test-api --env PYTHONPATH=/opt/calc --env BASE_URL=http://apiserver:5000/ -w /opt/calc calculator-app:latest pytest --junit-xml=results/api_result.xml -m api  || true
