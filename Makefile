@@ -9,7 +9,7 @@ run:
 	docker run --rm --volume $(PROJECTPATH):/opt/calc --env PYTHONPATH=/opt/calc -w /opt/calc calculator-app:latest python -B app/calc.py
 
 server:
-	docker run --rm --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run --rm --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 
 interactive:
 	docker run -ti --rm --volume $(PROJECTPATH):/opt/calc --env PYTHONPATH=/opt/calc  -w /opt/calc calculator-app:latest bash
@@ -40,7 +40,7 @@ test-e2e:
 	docker rm --force apiserver || true
 	docker stop calc-web || true
 	docker rm --force calc-web || true
-	docker run -d --rm --volume $(PROJECTPATH):/opt/calc --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --rm --volume $(PROJECTPATH):/opt/calc --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	docker run -d --rm --volume $(PROJECTPATH)/web:/usr/share/nginx/html --volume $(PROJECTPATH)/web/constants.test.js:/usr/share/nginx/html/constants.js --volume $(PROJECTPATH)/web/nginx.conf:/etc/nginx/conf.d/default.conf --network calc-test-e2e --name calc-web -p 80:80 nginx
 	docker run --rm --volume $(PROJECTPATH)/test/e2e/cypress.json:/cypress.json --volume $(PROJECTPATH)/test/e2e/cypress:/cypress --volume $(PROJECTPATH)/results:/results  --network calc-test-e2e cypress/included:4.9.0 --browser chrome || true
 	docker rm --force apiserver
@@ -96,7 +96,7 @@ ZAP_API_URL := http://zap-node:8080/
 ZAP_TARGET_URL := http://calc-web/
 zap-scan:
 	docker network create calc-test-zap || true
-	docker run -d --rm --network calc-test-zap --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --rm --network calc-test-zap --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	docker run -d --rm --network calc-test-zap --volume $(PROJECTPATH)/web:/usr/share/nginx/html  --volume $(PROJECTPATH)/web/constants.test.js:/usr/share/nginx/html/constants.js --volume $(PROJECTPATH)/web/nginx.conf:/etc/nginx/conf.d/default.conf --name calc-web -p 80:80 nginx
 	docker run -d --rm --network calc-test-zap --name zap-node -u zap -p 8080:8080 -i owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config api.key=$(ZAP_API_KEY)
 	sleep 10
@@ -112,7 +112,7 @@ build-jmeter:
 
 start-jmeter-record:
 	docker network create calc-test-jmeter || true
-	docker run -d --rm --network calc-test-jmeter --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --rm --network calc-test-jmeter --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	docker run -d --rm --network calc-test-jmeter --volume $(PROJECTPATH)/web:/usr/share/nginx/html  --volume $(PROJECTPATH)/web/constants.test.js:/usr/share/nginx/html/constants.js --volume $(PROJECTPATH)/web/nginx.conf:/etc/nginx/conf.d/default.conf --name calc-web -p 80:80 nginx
 
 stop-jmeter-record:
@@ -127,7 +127,7 @@ jmeter-load:
 	rm -f $(JMETER_RESULTS_FILE)
 	rm -rf $(JMETER_REPORT_FOLDER)
 	docker network create calc-test-jmeter || true
-	docker run -d --rm --network calc-test-jmeter --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --rm --network calc-test-jmeter --volume $(PROJECTPATH):/opt/calc --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	sleep 5
 	docker run --rm --network calc-test-jmeter --volume $(PROJECTPATH):/opt/jmeter -w /opt/jmeter calculator-jmeter jmeter -n -t test/jmeter/jmeter-plan.jmx -l results/jmeter_results.csv -e -o results/jmeter/
 	docker stop apiserver || true
